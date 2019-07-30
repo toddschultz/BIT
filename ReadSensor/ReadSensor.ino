@@ -26,6 +26,11 @@
 #include <Arduino_MKRTHERM.h>
 #include <Arduino_MKRENV.h>
 
+#include "secrets.h" 
+
+char ssid[] = SECRET_SSID;     // your network SSID (name)
+char password[] = SECRET_PWD;  // your network key
+
 void setup() {
 
   Serial.begin(9600);
@@ -54,8 +59,8 @@ void loop() {
   float uvb         = ENV.readUVB();
   float uvIndex     = ENV.readUVIndex();
 
-  float tctemperature = THERM.readTemperature()
-  float tcreftemp = THERM.readReferenceTemperature()
+  float tctemperature = THERM.readTemperature();
+  float tcreftemp = THERM.readReferenceTemperature();
 
   // print each of the sensor values
   Serial.print("Temperature = ");

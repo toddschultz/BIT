@@ -60,9 +60,14 @@ WiFiClient  client;
 unsigned long myChannelNumber = SECRET_CH_ID;
 const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
 
+// Initialize values
+String myStatus = "";
+float limTempUp = 135; // Upper temperature range for smoker
+float limTempLow = 105; // Lower temperature range for smoker
+
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   while (!Serial);
 
@@ -75,10 +80,30 @@ void setup() {
     Serial.println("Failed to initialize MKR ENV shield!");
     while (1);
   }
+
+  // check for the WiFi module:
+  if (WiFi.status() == WL_NO_MODULE) {
+    Serial.println("Communication with WiFi module failed!");
+    // don't continue
+    while (true);
+  }
+  ThingSpeak.begin(client);  //Initialize ThingSpeak
 }
 
 void loop() {
 
+  // Connect or reconnect to WiFi
+  if(WiFi.status() != WL_CONNECTED){
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(SECRET_SSID);
+    while(WiFi.status() != WL_CONNECTED){
+      WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+      Serial.print(".");
+      delay(5000);     
+    } 
+    Serial.println("\nConnected.");
+  }
+  
   // read all the sensor values
   float temperature = ENV.readTemperature();
   float humidity    = ENV.readHumidity();
@@ -88,30 +113,59 @@ void loop() {
   float uvb         = ENV.readUVB();
   float uvIndex     = ENV.readUVIndex();
 
-  float tctemperature = THERM.readTemperature();
-  float tcreftemp = THERM.readReferenceTemperature();
+  float smokertemperature = THERM.readTemperature();
+  float smokerreftemp = THERM.readReferenceTemperature();
 
+  // set the fields with the values
+  //Channel BBQed Data
+  // Fields Env pressure (kPa), Env RH (%), Env Temp (C), Smoker Temp (C)
+  ThingSpeak.setField(1, pressure);
+  ThingSpeak.setField(2, humidity);
+  ThingSpeak.setField(3, temperature);
+  ThingSpeak.setField(4, smokertemperature);
+  
+  // Set status message based on smoker temperature
+  if (smokertemperature > limTempUp){
+    myStatus = String("Smoker running too hot!");
+  }
+  else if (smokertemperature < limTempLow){
+    myStatus = String("Smoker running too cold!");
+  }
+  else {
+    mySatus = String("Smoker temperature running normal.");
+  }
+  ThingSpeak.setStatus(myStatus);
+  
+  // write to the ThingSpeak channel
+  int x = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
+  if(x == 200){
+    Serial.println("Channel update successful.");
+  }
+  else{
+    Serial.println("Problem updating channel. HTTP error code " + String(x));
+  }  
+  
   // print each of the sensor values
-  Serial.print("Temperature = ");
+  Serial.print("Env Temperature = ");
   Serial.print(temperature);
   Serial.println(" °C");
 
-  Serial.print("Humidity    = ");
+  Serial.print("Env Humidity    = ");
   Serial.print(humidity);
   Serial.println(" %");
 
-  Serial.print("Pressure    = ");
+  Serial.print("Env Pressure    = ");
   Serial.print(pressure);
   Serial.println(" kPa");
 
-  Serial.print("Illuminance = ");
+  Serial.print("Env Illuminance = ");
   Serial.print(illuminance);
   Serial.println(" lx");
 
-  Serial.print("UVA         = ");
+  Serial.print("Env UVA         = ");
   Serial.println(uva);
 
-  Serial.print("UVB         = ");
+  Serial.print("Env UVB         = ");
   Serial.println(uvb);
 
   Serial.print("UV Index    = ");
@@ -121,16 +175,16 @@ void loop() {
   Serial.println();
   
   Serial.print("Reference temperature ");
-  Serial.print(tcreftemp);
+  Serial.print(smokerreftemp);
   Serial.println(" °C");
 
   Serial.print("Temperature ");
-  Serial.print(tctemperature);
+  Serial.print(smokertemperature);
   Serial.println(" °C");
 
   // print an empty line
   Serial.println();
 
-  // wait 1 second to print again
-  delay(1000);
+  // wait 30 second to print again
+  delay(30*1000);
 }

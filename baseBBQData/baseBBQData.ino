@@ -133,7 +133,7 @@ void loop() {
     myStatus = String("Smoker running too cold!");
   }
   else {
-    mySatus = String("Smoker temperature running normal.");
+    myStatus = String("Smoker temperature running normal.");
   }
   ThingSpeak.setStatus(myStatus);
 

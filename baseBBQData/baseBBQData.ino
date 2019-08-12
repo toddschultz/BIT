@@ -64,6 +64,7 @@ const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
 String myStatus = "";
 float limTempUp = 135; // Upper temperature range for smoker
 float limTempLow = 105; // Lower temperature range for smoker
+unsigned long time; // Time in milliseconds since program started
 
 void setup() {
 
@@ -97,7 +98,7 @@ void loop() {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(SECRET_SSID);
     while(WiFi.status() != WL_CONNECTED){
-      WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+      WiFi.begin(ssid, password); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
       Serial.print(".");
       delay(5000);     
     } 
@@ -135,7 +136,8 @@ void loop() {
     mySatus = String("Smoker temperature running normal.");
   }
   ThingSpeak.setStatus(myStatus);
-  
+
+  time = millis();
   // write to the ThingSpeak channel
   int x = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
   if(x == 200){

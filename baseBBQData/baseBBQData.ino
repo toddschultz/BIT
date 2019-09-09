@@ -47,6 +47,7 @@
 
 #include <Arduino_MKRTHERM.h>
 #include <Arduino_MKRENV.h>
+// #include <ArduinoLowPower.h>
 #include "ThingSpeak.h"
 #include <WiFiNINA.h>
 
@@ -70,7 +71,7 @@ void setup() {
 
   Serial.begin(115200);
 
-  while (!Serial);
+  // while (!Serial);
 
   if (!THERM.begin()) {
     Serial.println("Failed to initialize MKR THERM shield!");

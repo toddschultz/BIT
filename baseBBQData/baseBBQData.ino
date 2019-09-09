@@ -92,6 +92,9 @@ void setup() {
   ThingSpeak.begin(client);  //Initialize ThingSpeak
 }
 
+// wait 1 second for sensors to settle
+  delay(1*1000);
+
 void loop() {
 
   // Connect or reconnect to WiFi

@@ -62,6 +62,9 @@ WiFiClient  client;
 unsigned long myChannelNumber = SECRET_CH_ID;
 const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
 
+RTCZero rtc; // create instance of real time clock
+int myhours, mins, secs, myday, mymonth, myyear;
+
 // Initialize values
 String myStatus = "";
 float limTempUp = 135; // Upper temperature range for smoker
@@ -91,10 +94,12 @@ void setup() {
     while (true);
   }
   ThingSpeak.begin(client);  //Initialize ThingSpeak
-}
 
-// wait 1 second for sensors to settle
+  // wait 1 second for sensors to settle
   delay(1*1000);
+  rtc.begin();
+  setRTC();  // get Epoch time from Internet Time Service
+}
 
 void loop() {
 
@@ -109,6 +114,14 @@ void loop() {
     } 
     Serial.println("\nConnected.");
   }
+  
+  // update date/time
+  myyear = rtc.getYear();
+  mymonth = rtc.getMonth();
+  myday = rtc.getDay();
+  myhours = rtc.getHours();
+  mins = rtc.getMinutes();
+  secs == rtc.getSeconds()
   
   // read all the sensor values
   float temperature = ENV.readTemperature();
@@ -194,4 +207,64 @@ void loop() {
 
   // wait 30 second to print again
   delay(30*1000);
+}
+
+
+void setRTC() { // get the time from Internet Time Service
+  unsigned long epoch;
+  int numberOfTries = 0, maxTries = 6;
+  do {
+    epoch = WiFi.getTime(); // The RTC is set to GMT or 0 Time Zone and stays at GMT.
+    numberOfTries++;
+  }
+  while ((epoch == 0) && (numberOfTries < maxTries));
+
+  if (numberOfTries == maxTries) {
+    Serial.print("NTP unreachable!!");
+    while (1);  // hang
+  }
+  else {
+    Serial.print("Epoch Time = ");
+    Serial.println(epoch);
+    rtc.setEpoch(epoch);
+    Serial.println();
+  }
+}
+
+void printDate()
+{
+  if (dateOrder == 0) {
+    Serial.print(myday);
+    Serial.print("/");
+  }
+  Serial.print(mymonth);
+  Serial.print("/");
+  if (dateOrder == 1) {
+    Serial.print(myday);
+    Serial.print("/");
+  }
+  Serial.print("20");
+  Serial.print(myyear);
+  Serial.print(" ");
+}
+
+void printTime()
+{
+  print2digits(myhours);
+  Serial.print(":");
+  print2digits(mins);
+  Serial.print(":");
+  print2digits(secs);
+  if (myClock==12) {
+    if(IsPM) Serial.print("  PM");
+    else Serial.print("  AM");
+  }
+  Serial.println();
+}
+
+void print2digits(int number) {
+  if (number < 10) {
+    Serial.print("0");
+  }
+  Serial.print(number);
 }

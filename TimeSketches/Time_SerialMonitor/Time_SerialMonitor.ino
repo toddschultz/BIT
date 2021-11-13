@@ -40,7 +40,10 @@ void loop() {
   printDate();
   printTime();
   Serial.println();
-  while (secs == rtc.getSeconds())delay(10); // wait until seconds change
+  if (secs == 15 || secs == 45) {
+    Serial.println("15 or 45 seconds!\n");
+  }
+  while (secs == rtc.getSeconds()) delay(10); // wait until seconds change
   if (mins==59 && secs ==0) setRTC(); // get NTP time every hour at minute 59
 }
 

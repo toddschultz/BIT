@@ -68,7 +68,7 @@ const int GMT = 0; //change this to adapt it to your time zone, Seattle -7
 const int dateOrder = 1;  // 1 = MDY; 0 for DMY
 // END USER SETTINGS
 
-WiFiClient  client;
+WiFiClient client;
 
 RTCZero rtc; // create instance of real time clock
 int myhours, mins, secs, myday, mymonth, myyear;
@@ -77,9 +77,9 @@ int myhours, mins, secs, myday, mymonth, myyear;
 String myStatus = "";
 float limTempUp = 135; // Upper temperature range for smoker
 float limTempLow = 105; // Lower temperature range for smoker
-int ncounter = 0; // Loop counter
 
 // Sensor variables for running sum
+int ncounter = 0; // Loop counter
 float temperature       = 0;
 float humidity          = 0;
 float pressure          = 0;
@@ -146,9 +146,6 @@ void loop() {
     Serial.println("\nConnected.");
   }
 
-  //Increment counter
-  ncounter = ncounter + 1;
-
   // Get time 
   secs = rtc.getSeconds();
   mins = rtc.getMinutes();
@@ -156,6 +153,7 @@ void loop() {
   if (mins == 59 && secs == 0) setRTC();
 
   // Get sample of data and add to running sum
+  ncounter = ncounter + 1;  //Increment counter
   temperature = temperature + ENV.readTemperature();
   humidity    = humidity + ENV.readHumidity();
   pressure    = pressure + ENV.readPressure();
@@ -173,10 +171,10 @@ void loop() {
     ThingSpeak.setField(4, smokertemperature/(float)ncounter);
 
     // Set status message based on smoker temperature
-    if (smokertemperature > limTempUp){
+    if (smokertemperature/(float)ncounter > limTempUp){
       myStatus = String("Smoker running too hot!");
     }
-    else if (smokertemperature < limTempLow){
+    else if (smokertemperature/(float)ncounter < limTempLow){
       myStatus = String("Smoker running too cold!");
     }
     else {

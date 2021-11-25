@@ -75,7 +75,7 @@ int myhours, mins, secs, myday, mymonth, myyear;
 
 // Initialize values
 String myStatus = "";
-float limTempUp = 135; // Upper temperature range for smoker
+float limTempUp = 125; // Upper temperature range for smoker
 float limTempLow = 105; // Lower temperature range for smoker
 
 // Sensor variables for running sum

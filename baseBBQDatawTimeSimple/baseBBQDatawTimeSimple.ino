@@ -194,7 +194,6 @@ void loop() {
     // Display values
     printDate();
     printTime();
-    Serial.println();
 
     // print each of the sensor values
     Serial.print("Env Temperature = ");
@@ -209,13 +208,17 @@ void loop() {
     Serial.print(pressure/(float)ncounter);
     Serial.println(" kPa");
   
-    Serial.print("Reference temperature ");
+    Serial.print("Reference temperature = ");
     Serial.print(smokerreftemp/(float)ncounter);
     Serial.println(" °C");
 
-    Serial.print("Temperature ");
+    Serial.print("Temperature = ");
     Serial.print(smokertemperature/(float)ncounter);
     Serial.println(" °C");
+    
+    Serial.print("Counter = ");
+    Serial.println(ncounter);
+    Serial.println(myStatus);    
     Serial.println();
     
     // Reset counter and running sumsS

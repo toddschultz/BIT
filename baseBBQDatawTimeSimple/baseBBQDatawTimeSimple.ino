@@ -126,7 +126,7 @@ void setup() {
   // wait 1 second for sensors to settle
   delay(1*1000);
 
-// Initialize real time clock
+  // Initialize real time clock
   rtc.begin();
   setRTC();  // get Epoch time from Internet Time Service
   fixTimeZone();
@@ -238,6 +238,18 @@ void loop() {
 void setRTC() { // get the time from Internet Time Service
   unsigned long epoch;
   int numberOfTries = 0, maxTries = 6;
+  // Reconnect to WiFi if needed
+  if(WiFi.status() != WL_CONNECTED){
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(SECRET_SSID);
+    while(WiFi.status() != WL_CONNECTED){
+      WiFi.begin(ssid, password); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+      Serial.print(".");
+      delay(5000);     
+    } 
+    Serial.println("\nConnected.");
+  }
+  
   do {
     epoch = WiFi.getTime(); // The RTC is set to GMT or 0 Time Zone and stays at GMT.
     numberOfTries++;

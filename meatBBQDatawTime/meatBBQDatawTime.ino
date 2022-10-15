@@ -136,8 +136,8 @@ void loop() {
   ncounter = ncounter + 1;  //Increment counter
   meattemperature = meattemperature + THERM.readTemperature();
 
-  // Every 30 seconds average and write to ThingSpeak
-  if (secs == 15 || secs == 45) {
+  // Every 60 seconds average and write to ThingSpeak
+  if (secs == 30) {
     // Compute average, upload to ThingSpeak, and reset counter and sums
     //Channel BBQed Data
     // Fields Meat Temp (C)

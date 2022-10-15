@@ -160,8 +160,8 @@ void loop() {
   smokertemperature = smokertemperature + THERM.readTemperature();
   smokerreftemp = smokerreftemp + THERM.readReferenceTemperature();
 
-  // Every 30 seconds average and write to ThingSpeak
-  if (secs == 0 || secs == 30) {
+  // Every 60 seconds average and write to ThingSpeak
+  if (secs == 0) {
     // Compute average, upload to ThingSpeak, and reset counter and sums
     //Channel BBQed Data
     // Fields Env pressure (kPa), Env RH (%), Env Temp (C), Smoker Temp (C)

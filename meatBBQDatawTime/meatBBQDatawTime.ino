@@ -1,6 +1,6 @@
 /*
-  BASEBBQDATAWTIME - log Arduino BBQ data to ThingSpeak with time control
-  baseBBQDatawTime.ino
+  MEATBBQDATAWTIME - log Arduino BBQ data to ThingSpeak with time control
+  meatBBQDatawTime.ino
 
   Built from:
   Time_SerialMonitor.ino
@@ -15,15 +15,6 @@
   - Arduino MKR board
   - Arduino MKR THERM Shield attached
   - A K Type thermocouple temperature sensor connected to the shield
-  
-  MKR ENV Shield - Read Sensors
-
-  This example reads the sensors on-board the MKR ENV shield
-  and prints them to the Serial Monitor once a second.
-
-  The circuit:
-  - Arduino MKR board
-  - Arduino MKR ENV Shield attached
 
   This example code is in the public domain.
   This example code is in the public domain.
@@ -52,7 +43,6 @@
 */
 
 #include <Arduino_MKRTHERM.h>
-#include <Arduino_MKRENV.h>
 #include "ThingSpeak.h"
 #include <WiFiNINA.h>
 #include <RTCZero.h>
@@ -75,16 +65,11 @@ int myhours, mins, secs, myday, mymonth, myyear;
 
 // Initialize values
 String myStatus = "";
-float limTempUp = 125; // Upper temperature range for smoker
-float limTempLow = 105; // Lower temperature range for smoker
+float limTempUp = 57; // 135 C doneness temperature for salmon
 
 // Sensor variables for running sum
 int ncounter = 0; // Loop counter
-float temperature       = 0;
-float humidity          = 0;
-float pressure          = 0;
-float smokertemperature = 0;
-float smokerreftemp     = 0;
+float meattemperature = 0;
 
 void setup() {
 
@@ -112,11 +97,6 @@ void setup() {
   // Initialize shields
   if (!THERM.begin()) {
     Serial.println("Failed to initialize MKR THERM shield!");
-    while (1);
-  }
-
-  if (!ENV.begin()) {
-    Serial.println("Failed to initialize MKR ENV shield!");
     while (1);
   }
 
@@ -154,31 +134,18 @@ void loop() {
 
   // Get sample of data and add to running sum
   ncounter = ncounter + 1;  //Increment counter
-  temperature = temperature + ENV.readTemperature();
-  humidity    = humidity + ENV.readHumidity();
-  pressure    = pressure + ENV.readPressure();
-  smokertemperature = smokertemperature + THERM.readTemperature();
-  smokerreftemp = smokerreftemp + THERM.readReferenceTemperature();
+  meattemperature = meattemperature + THERM.readTemperature();
 
   // Every 30 seconds average and write to ThingSpeak
-  if (secs == 0 || secs == 30) {
+  if (secs == 15 || secs == 45) {
     // Compute average, upload to ThingSpeak, and reset counter and sums
     //Channel BBQed Data
-    // Fields Env pressure (kPa), Env RH (%), Env Temp (C), Smoker Temp (C)
-    ThingSpeak.setField(1, pressure/(float)ncounter);
-    ThingSpeak.setField(2, humidity/(float)ncounter);
-    ThingSpeak.setField(3, temperature/(float)ncounter);
-    ThingSpeak.setField(4, smokertemperature/(float)ncounter);
+    // Fields Meat Temp (C)
+    ThingSpeak.setField(5, meattemperature/(float)ncounter);
 
-    // Set status message based on smoker temperature
-    if (smokertemperature/(float)ncounter > limTempUp){
-      myStatus = String("Smoker running too hot!");
-    }
-    else if (smokertemperature/(float)ncounter < limTempLow){
-      myStatus = String("Smoker running too cold!");
-    }
-    else {
-      myStatus = String("Smoker temperature running normal.");
+    // Set status message based on meat temperature
+    if (meattemperature/(float)ncounter >= limTempUp){
+      myStatus = String("Salmon is done!");
     }
     ThingSpeak.setStatus(myStatus);
     
@@ -196,24 +163,8 @@ void loop() {
     printTime();
 
     // print each of the sensor values
-    Serial.print("Env Temperature = ");
-    Serial.print(temperature/(float)ncounter);
-    Serial.println(" °C");
-
-    Serial.print("Env Humidity    = ");
-    Serial.print(humidity/(float)ncounter);
-    Serial.println(" %");
-
-    Serial.print("Env Pressure    = ");
-    Serial.print(pressure/(float)ncounter);
-    Serial.println(" kPa");
-  
-    Serial.print("Reference temperature = ");
-    Serial.print(smokerreftemp/(float)ncounter);
-    Serial.println(" °C");
-
-    Serial.print("Temperature = ");
-    Serial.print(smokertemperature/(float)ncounter);
+    Serial.print("Meat Temperature = ");
+    Serial.print(meattemperature/(float)ncounter);
     Serial.println(" °C");
     
     Serial.print("Counter = ");
@@ -223,11 +174,7 @@ void loop() {
     
     // Reset counter and running sumsS
     ncounter = 0;
-    temperature       = 0;
-    humidity          = 0;
-    pressure          = 0;
-    smokertemperature = 0;
-    smokerreftemp     = 0;
+    meattemperature = 0;
   }
 
   // Wait for new second

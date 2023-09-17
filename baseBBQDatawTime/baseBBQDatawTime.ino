@@ -14,7 +14,9 @@
   The circuit:
   - Arduino MKR board
   - Arduino MKR THERM Shield attached
-  - A K Type thermocouple temperature sensor connected to the shield
+  - K Type thermocouple temperature sensor connected to the shield
+  - Groove compatiable carrier
+  - 
   
   MKR ENV Shield - Read Sensors
 

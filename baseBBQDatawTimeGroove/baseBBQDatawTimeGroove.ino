@@ -1,3 +1,5 @@
+#include <DHT.h>
+
 /*
   BASEBBQDATAWTIMEGROOVE - log Arduino BBQ data to ThingSpeak with time control
   baseBBQDatawTimeGroove.ino
@@ -11,16 +13,13 @@
   once a second.
   
   The circuit:
-  - Arduino MKR board
+  - Arduino MKR WiFi 1010 board
   - Arduino MKR THERM Shield attached
   - K Type thermocouple temperature sensor connected to the shield
   - Groove compatiable carrier
   - Groove temperature and humidity sensor pro (DHT sensor)
 
   This example code is in the public domain.
-
-  
-  Hardware: Arduino MKR WiFi 1010
   
   !!! IMPORTANT - Modify the secrets.h file for this project with your network connection and ThingSpeak channel details. !!!
   

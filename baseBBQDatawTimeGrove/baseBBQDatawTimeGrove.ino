@@ -16,8 +16,15 @@
   - Arduino MKR WiFi 1010 board
   - Arduino MKR THERM Shield attached
   - K Type thermocouple temperature sensor connected to the shield
-  - Groove compatiable carrier
-  - Groove temperature and humidity sensor pro (DHT sensor)
+  - Grove compatiable carrier
+  - Grove temperature and humidity sensor pro (DHT sensor)
+
+The software:
+  - Base Arduino MKR 1010 board support
+  - Arduino WiFi NINA library
+  - Arduino MKR THERM library
+  - RTC Zero library
+  - Adafruit Unified Sensor library for Grove sensor support (The Grove libraries from Arduino don't work with the MKR boards.)
 
   This example code is in the public domain.
   

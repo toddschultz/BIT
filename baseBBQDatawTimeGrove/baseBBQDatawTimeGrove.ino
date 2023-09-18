@@ -66,8 +66,8 @@ const int GMT = 0; //change this to adapt it to your time zone, Seattle -7
 const int dateOrder = 1;  // 1 = MDY; 0 for DMY
 
 // Groove parameters
-const int DHTPIN = 0;
-const char DHTTYPE[] = "DHT 22";
+const int DHTPIN = 12; // digital pin 12 for the IOT-BOTS enclosures
+const int DHTTYPE = DHT22;
 // #define DHTTYPE DHT11   // DHT 11 
 // #define DHTTYPE DHT22   // DHT 22  (AM2302)
 // #define DHTTYPE DHT21   // DHT 21 (AM2301)
@@ -96,7 +96,9 @@ float smokerreftemp     = 0;
 void setup() {
 
   // Initialize WiFi  
-  initiailizeWiFi()
+  initiailizeWiFi();
+  // Connect or reconnect to WiFi
+  connectWiFi();
   /*  
   Serial.begin(115200);
   // check for the WiFi module:
@@ -153,7 +155,7 @@ void setup() {
 void loop() {
   
   // Reconnect to WiFi if needed
-  connectWiFi()
+  connectWiFi();
   /*if(WiFi.status() != WL_CONNECTED){
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(SECRET_SSID);
@@ -174,9 +176,11 @@ void loop() {
 
   // Get sample of data and add to running sum
   ncounter = ncounter + 1;  //Increment counter
-  temperature = temperature + ENV.readTemperature();
-  humidity    = humidity + ENV.readHumidity();
-  pressure    = pressure + ENV.readPressure();
+  //temperature = temperature + ENV.readTemperature();
+  //humidity    = humidity + ENV.readHumidity();
+  //pressure    = pressure + ENV.readPressure();
+  temperature = temperature + dht.readTemperature();
+  humidity    = humidity + dht.readHumidity();
   smokertemperature = smokertemperature + THERM.readTemperature();
   smokerreftemp = smokerreftemp + THERM.readReferenceTemperature();
 
@@ -279,21 +283,11 @@ void connectWiFi() {
   }
 }
 
-
 void setRTC() { // get the time from Internet Time Service
   unsigned long epoch;
-  int numberOfTries = 0, maxTries = 10;
+  int numberOfTries = 0, maxTries = 100;
   // Reconnect to WiFi if needed
-  if(WiFi.status() != WL_CONNECTED){
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(SECRET_SSID);
-    while(WiFi.status() != WL_CONNECTED){
-      WiFi.begin(ssid, password); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
-      Serial.print(".");
-      delay(5000);     
-    } 
-    Serial.println("\nConnected.");
-  }
+  connectWiFi();
   
   do {
     epoch = WiFi.getTime(); // The RTC is set to GMT or 0 Time Zone and stays at GMT.
